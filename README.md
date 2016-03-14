@@ -13,6 +13,8 @@ The `*.auth` files will need to be _enrolled_ in the UEFI firmware the first tim
 * `secure-boot update` will update the EFI executable in `/boot/Efi/Secure/combined-boot-signed.efi`
 * `secure-boot install` will run update and add an entry to the EFI boot list for the newly created image
 
+`secure-boot.hook` is installed as a pacman hook that runs `secure-boot update` when `linux` package is updated.
+
 ## Intro
 
 To simplify, I boot Linux directly from UEFI (no intermediate bootloaders).
