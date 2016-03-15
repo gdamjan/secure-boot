@@ -1,7 +1,7 @@
 #! /usr/bin/make -f
 
 BOOTDIR   := /boot/Efi/Secure
-CERTDIR   := /etc/secure-boot
+KEYSDIR   := /etc/secure-boot
 SIGNER    := ArchSecureBoot
 
 KERNEL    := /boot/vmlinuz-linux
@@ -9,10 +9,6 @@ INITRAMFS := /boot/intel-ucode.img /boot/initramfs-linux.img
 EFISTUB   := /usr/lib/systemd/boot/efi/linuxx64.efi.stub
 
 BUILDDIR  := $(shell mktemp -d)
-
-# or use uuidgen
-GUUID     := 1737c18a-2142-4723-a62d-36945aedc25e
-
 
 all:
 	@echo Make targets: keys, install, update
@@ -44,8 +40,8 @@ $(BUILDDIR)/combined-boot.efi: $(BUILDDIR)/cmdline.txt $(BUILDDIR)/initramfs.img
 	        --add-section .initrd=$(BUILDDIR)/initramfs.img --change-section-vma .initrd=0x3000000 \
 	        $(EFISTUB) $(BUILDDIR)/combined-boot.efi
 
-$(BUILDDIR)/combined-boot-signed.efi: $(BUILDDIR)/combined-boot.efi $(CERTDIR)/db.key
-	sbsign --key $(CERTDIR)/db.key --cert $(CERTDIR)/db.crt --output $(BUILDDIR)/combined-boot-signed.efi \
+$(BUILDDIR)/combined-boot-signed.efi: $(BUILDDIR)/combined-boot.efi $(KEYSDIR)/db.key
+	sbsign --key $(KEYSDIR)/db.key --cert $(KEYSDIR)/db.crt --output $(BUILDDIR)/combined-boot-signed.efi \
 	        $(BUILDDIR)/combined-boot.efi
 
 
@@ -57,28 +53,31 @@ $(BOOTDIR)/combined-boot-signed.efi: $(BUILDDIR)/combined-boot-signed.efi
 ### setup keys.
 ### need only run once.
 
-keys: $(CERTDIR)/PK.auth $(CERTDIR)/KEK.auth $(CERTDIR)/db.auth
+keys: $(KEYSDIR)/PK.auth $(KEYSDIR)/KEK.auth $(KEYSDIR)/db.auth
 
-$(CERTDIR)/%.crt: $(CERTDIR)/%.key;
-$(CERTDIR)/%.key: COMMONNAME = $(SIGNER) $(basename $(notdir $@))
-$(CERTDIR)/%.key:
-	@mkdir -p $(CERTDIR)
+$(KEYSDIR)/%.crt: $(KEYSDIR)/%.key;
+$(KEYSDIR)/%.key: COMMONNAME = $(SIGNER) $(basename $(notdir $@))
+$(KEYSDIR)/%.key:
+	@mkdir -p $(KEYSDIR)
 	openssl req -new -x509 -newkey rsa:2048 -subj "/CN=$(COMMONNAME)/" \
 	    -keyout $@ -out $(@:.key=.crt) -days 3650 -nodes -sha256
 
-$(CERTDIR)/%.esl: $(CERTDIR)/%.key
-	cert-to-efi-sig-list -g $(GUUID) $(@:.esl=.crt) $@
+$(KEYSDIR)/uuid:
+	uuidgen -r > $@
+
+$(KEYSDIR)/%.esl: $(KEYSDIR)/%.key $(KEYSDIR)/uuid
+	cert-to-efi-sig-list -g `cat $(KEYSDIR)/uuid` $(@:.esl=.crt) $@
 
 
-$(CERTDIR)/PK.auth: $(CERTDIR)/PK.crt $(CERTDIR)/PK.esl
-	sign-efi-sig-list -k $(CERTDIR)/PK.key -c $(CERTDIR)/PK.crt PK $(CERTDIR)/PK.esl $(CERTDIR)/PK.auth
+$(KEYSDIR)/PK.auth: $(KEYSDIR)/PK.crt $(KEYSDIR)/PK.esl
+	sign-efi-sig-list -k $(KEYSDIR)/PK.key -c $(KEYSDIR)/PK.crt PK $(KEYSDIR)/PK.esl $(KEYSDIR)/PK.auth
 
-$(CERTDIR)/KEK.auth: $(CERTDIR)/PK.crt $(CERTDIR)/KEK.esl
-	sign-efi-sig-list -c $(CERTDIR)/PK.crt -k $(CERTDIR)/PK.key KEK $(CERTDIR)/KEK.esl $(CERTDIR)/KEK.auth
+$(KEYSDIR)/KEK.auth: $(KEYSDIR)/PK.crt $(KEYSDIR)/KEK.esl
+	sign-efi-sig-list -c $(KEYSDIR)/PK.crt -k $(KEYSDIR)/PK.key KEK $(KEYSDIR)/KEK.esl $(KEYSDIR)/KEK.auth
 
-$(CERTDIR)/db.auth: $(CERTDIR)/KEK.crt $(CERTDIR)/db.esl
-	sign-efi-sig-list -c $(CERTDIR)/KEK.crt -k $(CERTDIR)/KEK.key db $(CERTDIR)/db.esl $(CERTDIR)/db.auth
+$(KEYSDIR)/db.auth: $(KEYSDIR)/KEK.crt $(KEYSDIR)/db.esl
+	sign-efi-sig-list -c $(KEYSDIR)/KEK.crt -k $(KEYSDIR)/KEK.key db $(KEYSDIR)/db.esl $(KEYSDIR)/db.auth
 
 
-.PRECIOUS: $(CERTDIR)/%.key $(CERTDIR)/%.crt $(CERTDIR)/%.esl
+.PRECIOUS: $(KEYSDIR)/%.key $(KEYSDIR)/%.crt $(KEYSDIR)/%.esl
 .PHONY: all clean
