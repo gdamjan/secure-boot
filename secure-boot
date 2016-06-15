@@ -6,8 +6,9 @@ SIGNER    := ArchSecureBoot
 
 SUFFIX    :=
 KERNEL    := /boot/vmlinuz-linux${SUFFIX}
-INITRAMFS := /boot/intel-ucode.img /boot/initramfs-linux${SUFFIX}.img
+INITRAMFS := /boot/initramfs-linux${SUFFIX}.img
 EFISTUB   := /usr/lib/systemd/boot/efi/linuxx64.efi.stub
+UCODE     := /boot/intel-ucode.img
 
 BUILDDIR  := $(shell mktemp -d)
 
@@ -30,7 +31,7 @@ $(BUILDDIR)/cmdline.txt:
 	@mkdir -p $(BUILDDIR)
 	echo -n `</proc/cmdline` > $@
 
-$(BUILDDIR)/initramfs.img: $(INITRAMFS)
+$(BUILDDIR)/initramfs.img: $(UCODE) $(INITRAMFS)
 	@mkdir -p $(BUILDDIR)
 	cat $^ > $@
 
