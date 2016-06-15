@@ -11,11 +11,12 @@ EFISTUB   := /usr/lib/systemd/boot/efi/linuxx64.efi.stub
 
 BUILDDIR  := $(shell mktemp -d)
 
-all:
+default:
 	@echo Make targets: keys, install, update
 
-build:   $(BUILDDIR)/combined-boot.efi
-sign:    $(BUILDDIR)/combined-boot-signed.efi
+clean:
+	rm -rf $(BUILDDIR)
+
 update:  $(BOOTDIR)/combined-boot-signed${SUFFIX}.efi
 install: update
 	efibootmgr -c -l '\Efi\Secure\combined-boot-signed${SUFFIX}.efi' -L 'SecureBoot linux${SUFFIX}'
@@ -25,18 +26,13 @@ $(BOOTDIR)/combined-boot-signed${SUFFIX}.efi: $(BUILDDIR)/combined-boot-signed.e
 	cp $< $@
 
 
-clean:
-	rm -rf $(BUILDDIR)
-
-
-
 $(BUILDDIR)/cmdline.txt:
 	@mkdir -p $(BUILDDIR)
-	echo -n `</proc/cmdline` > $(BUILDDIR)/cmdline.txt
+	echo -n `</proc/cmdline` > $@
 
 $(BUILDDIR)/initramfs.img: $(INITRAMFS)
 	@mkdir -p $(BUILDDIR)
-	cat  $(INITRAMFS) > $(BUILDDIR)/initramfs.img
+	cat $^ > $@
 
 $(BUILDDIR)/combined-boot.efi: $(BUILDDIR)/cmdline.txt $(BUILDDIR)/initramfs.img $(EFISTUB) /etc/os-release
 	objcopy \
@@ -44,15 +40,19 @@ $(BUILDDIR)/combined-boot.efi: $(BUILDDIR)/cmdline.txt $(BUILDDIR)/initramfs.img
 	        --add-section .cmdline=$(BUILDDIR)/cmdline.txt --change-section-vma .cmdline=0x30000 \
 	        --add-section .linux=$(KERNEL) --change-section-vma .linux=0x40000 \
 	        --add-section .initrd=$(BUILDDIR)/initramfs.img --change-section-vma .initrd=0x3000000 \
-	        $(EFISTUB) $(BUILDDIR)/combined-boot.efi
+	        $(EFISTUB) $@
 
 $(BUILDDIR)/combined-boot-signed.efi: $(BUILDDIR)/combined-boot.efi $(KEYSDIR)/db.key
-	sbsign --key $(KEYSDIR)/db.key --cert $(KEYSDIR)/db.crt --output $(BUILDDIR)/combined-boot-signed.efi \
-	        $(BUILDDIR)/combined-boot.efi
+	sbsign --key $(KEYSDIR)/db.key --cert $(KEYSDIR)/db.crt --output $@ $<
+
+
+# shortcuts
+build:   $(BUILDDIR)/combined-boot.efi
+sign:    $(BUILDDIR)/combined-boot-signed.efi
 
 
 ### setup keys.
-### need only run once.
+### need run only once.
 
 keys: $(KEYSDIR)/PK.auth $(KEYSDIR)/KEK.auth $(KEYSDIR)/db.auth
 
@@ -71,14 +71,15 @@ $(KEYSDIR)/%.esl: $(KEYSDIR)/%.key $(KEYSDIR)/uuid
 
 
 $(KEYSDIR)/PK.auth: $(KEYSDIR)/PK.crt $(KEYSDIR)/PK.esl
-	sign-efi-sig-list -k $(KEYSDIR)/PK.key -c $(KEYSDIR)/PK.crt PK $(KEYSDIR)/PK.esl $(KEYSDIR)/PK.auth
+	sign-efi-sig-list -k $(KEYSDIR)/PK.key -c $(KEYSDIR)/PK.crt PK $(KEYSDIR)/PK.esl $@
 
 $(KEYSDIR)/KEK.auth: $(KEYSDIR)/PK.crt $(KEYSDIR)/KEK.esl
-	sign-efi-sig-list -c $(KEYSDIR)/PK.crt -k $(KEYSDIR)/PK.key KEK $(KEYSDIR)/KEK.esl $(KEYSDIR)/KEK.auth
+	sign-efi-sig-list -c $(KEYSDIR)/PK.crt -k $(KEYSDIR)/PK.key KEK $(KEYSDIR)/KEK.esl $@
 
 $(KEYSDIR)/db.auth: $(KEYSDIR)/KEK.crt $(KEYSDIR)/db.esl
-	sign-efi-sig-list -c $(KEYSDIR)/KEK.crt -k $(KEYSDIR)/KEK.key db $(KEYSDIR)/db.esl $(KEYSDIR)/db.auth
+	sign-efi-sig-list -c $(KEYSDIR)/KEK.crt -k $(KEYSDIR)/KEK.key db $(KEYSDIR)/db.esl $@
 
 
 .PRECIOUS: $(KEYSDIR)/%.key $(KEYSDIR)/%.crt $(KEYSDIR)/%.esl
-.PHONY: all clean
+.PHONY: default clean install
+.DEFAULT: default
