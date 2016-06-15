@@ -2,18 +2,26 @@
 
 ## Rationale
 
-I want full control what boots the computer to avoid the so called [_evil maid_ attack](https://www.schneier.com/blog/archives/2009/10/evil_maid_attac.html). That requires setting SecureBoot with only my own keys.
+I want full control what boots the computer to avoid the so called [_evil maid_ attack](https://www.schneier.com/blog/archives/2009/10/evil_maid_attac.html). That requires setting SecureBoot with only my own keys. SecureBoot protects the computer from tampering with the installed OS and boot while it's left powered off outside our view.
 
 ## Quick Start
 
-* `secure-boot keys` will create the keys in `/etc/secure-boot/` - make sure noone can access them
+* `secure-boot keys` will create the keys in `/etc/secure-boot/` - make sure no-one can access them!
 
-The `*.auth` files will need to be _enrolled_ in the UEFI firmware the first time. That depends on the hardware.
+The `*.auth` files **must be enrolled** in the UEFI firmware the first time. Unfortunately this procedure
+depends on the hardware i.e. the BIOS/UEFI (see below for my T450s).
 
 * `secure-boot update` will update the EFI executable in `/boot/Efi/Secure/combined-boot-signed.efi`
 * `secure-boot install` will run update and add an entry to the EFI boot list for the newly created image
 
 `secure-boot.hook` is installed as a pacman hook that runs `secure-boot update` when `linux` package is updated.
+
+## Options
+
+* `secure-boot SUFFIX=-lts update` will sign and setup the -lts kernel (also -git, -zen, etc) - but make sure to setup
+  the pacman hook for those too.
+* by default the script expects a cpu microcode archive exists at `/boot/intel-ucode.img`, and packs it to the common initramfs.
+  Use `secure-boot UCODE= update` to disable it.
 
 ## Intro
 
