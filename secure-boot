@@ -9,6 +9,7 @@ KERNEL    := /boot/vmlinuz-linux${SUFFIX}
 INITRAMFS := /boot/initramfs-linux${SUFFIX}.img
 EFISTUB   := /usr/lib/systemd/boot/efi/linuxx64.efi.stub
 UCODE     := /boot/intel-ucode.img
+CMDLINE   := /etc/kernel/cmdline
 
 BUILDDIR  := $(shell mktemp -d)
 
@@ -29,7 +30,9 @@ $(BOOTDIR)/combined-boot-signed${SUFFIX}.efi: $(BUILDDIR)/combined-boot-signed.e
 
 $(BUILDDIR)/cmdline.txt:
 	@mkdir -p $(BUILDDIR)
-	echo -n `</proc/cmdline` > $@
+	[ -f ${CMDLINE} ] && \
+	    cp ${CMDLINE} $@ || \
+	    cp /proc/cmdline $@
 
 $(BUILDDIR)/initramfs.img: $(UCODE) $(INITRAMFS)
 	@mkdir -p $(BUILDDIR)
