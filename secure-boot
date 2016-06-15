@@ -4,8 +4,9 @@ BOOTDIR   := /boot/Efi/Secure
 KEYSDIR   := /etc/secure-boot
 SIGNER    := ArchSecureBoot
 
-KERNEL    := /boot/vmlinuz-linux
-INITRAMFS := /boot/intel-ucode.img /boot/initramfs-linux.img
+SUFFIX    :=
+KERNEL    := /boot/vmlinuz-linux${SUFFIX}
+INITRAMFS := /boot/intel-ucode.img /boot/initramfs-linux${SUFFIX}.img
 EFISTUB   := /usr/lib/systemd/boot/efi/linuxx64.efi.stub
 
 BUILDDIR  := $(shell mktemp -d)
@@ -15,9 +16,14 @@ all:
 
 build:   $(BUILDDIR)/combined-boot.efi
 sign:    $(BUILDDIR)/combined-boot-signed.efi
-update:  $(BOOTDIR)/combined-boot-signed.efi
+update:  $(BOOTDIR)/combined-boot-signed${SUFFIX}.efi
 install: update
-	efibootmgr -c -l '\Efi\Secure\combined-boot-signed.efi' -L 'Linux SecureBoot'
+	efibootmgr -c -l '\Efi\Secure\combined-boot-signed${SUFFIX}.efi' -L 'SecureBoot linux${SUFFIX}'
+
+$(BOOTDIR)/combined-boot-signed${SUFFIX}.efi: $(BUILDDIR)/combined-boot-signed.efi
+	@mkdir -p $(BOOTDIR)
+	cp $< $@
+
 
 clean:
 	rm -rf $(BUILDDIR)
@@ -43,11 +49,6 @@ $(BUILDDIR)/combined-boot.efi: $(BUILDDIR)/cmdline.txt $(BUILDDIR)/initramfs.img
 $(BUILDDIR)/combined-boot-signed.efi: $(BUILDDIR)/combined-boot.efi $(KEYSDIR)/db.key
 	sbsign --key $(KEYSDIR)/db.key --cert $(KEYSDIR)/db.crt --output $(BUILDDIR)/combined-boot-signed.efi \
 	        $(BUILDDIR)/combined-boot.efi
-
-
-$(BOOTDIR)/combined-boot-signed.efi: $(BUILDDIR)/combined-boot-signed.efi
-	@mkdir -p $(BOOTDIR)
-	cp $(BUILDDIR)/combined-boot-signed.efi $(BOOTDIR)/combined-boot-signed.efi
 
 
 ### setup keys.
