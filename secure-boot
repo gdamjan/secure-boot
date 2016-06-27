@@ -32,7 +32,7 @@ $(BUILDDIR)/cmdline.txt:
 	@mkdir -p $(BUILDDIR)
 	[ -f ${CMDLINE} ] && \
 	    cp ${CMDLINE} $@ || \
-	    cp /proc/cmdline $@
+	    echo -n `</proc/cmdline` > $@
 
 $(BUILDDIR)/initramfs.img: $(UCODE) $(INITRAMFS)
 	@mkdir -p $(BUILDDIR)
