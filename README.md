@@ -57,7 +57,9 @@ or just install some Linux from .iso. Don't forget, UEFI requires GPT.
 
 ## Laptop
 
-My Thinkpad T450s doesn't have key management in the firmware (the _bios_), so a third-party one needs to be used. `efitools` has `KeyTool.efi`, so I copied it and the *.auth files in `/boot/keys` and set it up to boot on next-boot with efibootmgr. In the firmware first choose the *Enter Setup mode* option, that will clear keys, and allow you to replace them. Save and reset, and now KeyTool.efi will be able to *replace* the db, KEK and PK certificates (in that order). I didn't just *add* the certificate because I wanted only my own keys there. If that is ok, reboot and enable SecureBoot.
+My Thinkpad T450s doesn't have key management in the firmware (the _bios_), so a third-party one needs to be used. `efitools` has `KeyTool.efi`, so I copied it and the *.auth files in `/boot/keys` and set it up to boot on next-boot with efibootmgr. 
+
+Make sure to clear the built-in keys first, otherwise you can't setup your own. In some firmwares there's a separate option for that, or it does it when you select *Enter Setup mode* option. Save and reset, and now KeyTool.efi will be able to *replace* the PK, KEK and db certificates. I didn't just *add* the certificate because I wanted only my own keys there. If that is ok, reboot and enable SecureBoot.
 
 On the next reboot KeyTool.efi can't run since it's not signed, so the boot will continue to my own combined and signed Linux image.
 
