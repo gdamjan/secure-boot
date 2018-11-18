@@ -6,8 +6,11 @@ ESP       := /boot
 EFIDIR    := /EFI/Secure
 EFIBOOTDEVICE :=
 
+# deprecated, use KERNEL. for backward compatibility til 2.0
+SUFFIX    := linux
+
 SIGNER    := ArchSecureBoot
-KERNEL    := linux
+KERNEL    := ${SUFFIX}
 VMLINUZ   := /boot/vmlinuz-${KERNEL}
 INITRAMFS := /boot/initramfs-${KERNEL}.img
 EFISTUB   := /usr/lib/systemd/boot/efi/linuxx64.efi.stub
