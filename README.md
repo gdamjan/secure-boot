@@ -38,7 +38,7 @@ To simplify, I boot Linux directly from UEFI (no intermediate bootloaders).
 UEFI can only boot a single efi executable, but to boot Linux you also need one or more initramfs (including intel micro-code) and a command line[1].
 So all of these things have to be combined with `objcopy`. The combined file is then signed.
 
-Alternatively I'd need to use grub2 or some other bootloader that knows about SecureBoot - that kind of scares me since it increases the attack surface.
+Alternatively I'd need to use grub2 or some other bootloader that knows about SecureBoot - that kind of scares me since it increases the [attack surface](https://lwn.net/Articles/827403/).
 
 [1] command line: the boot command line maybe could be avoided with [auto-discovery](http://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec/).
 AFAIK Arch is not fully ready for that yet.
