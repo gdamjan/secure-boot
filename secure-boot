@@ -18,6 +18,7 @@ UCODE     := /boot/intel-ucode.img
 CMDLINE   := /etc/kernel/cmdline
 DESTFILE  := secure-boot-${KERNEL}.efi
 EFIBOOTMGR := efibootmgr
+EFIBOOTLBL := SecureBoot ${KERNEL}
 
 -include /etc/secure-boot/config.mk
 
@@ -40,7 +41,7 @@ clean:
 
 update:  $(BOOTDIR)/${DESTFILE}
 install: update
-	$(EFIBOOTMGR) -c -l '${EFIDIRFAT}\${DESTFILE}' -L 'SecureBoot ${KERNEL}'
+	$(EFIBOOTMGR) -c -l '${EFIDIRFAT}\${DESTFILE}' -L '${EFIBOOTLBL}'
 
 $(BOOTDIR)/${DESTFILE}: $(BUILDDIR)/combined-boot-signed.efi
 	@mkdir -p $(BOOTDIR)
