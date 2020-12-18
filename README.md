@@ -8,15 +8,16 @@ I want full control at what boots the computer to avoid the so called [_evil mai
 
 ## Quick Start
 
-* `secure-boot keys` will create the keys in `/etc/secure-boot/` - make sure no-one can access them!
+* `secure-boot gen-keys` will create the keys in `/etc/secure-boot/` - make sure no-one can access them!
 
 The `*.auth` files **must be enrolled** in the UEFI firmware the first time. Unfortunately this procedure
 depends on the hardware i.e. the BIOS/UEFI (see below for a Thinkpad).
+* `secure-boot enroll` (experimental) enrolls the keys into the UEFI firmware using `efi-updatevar` from [efitools](https://www.archlinux.org/packages/extra/x86_64/efitools/) package.
 
-* `secure-boot update` will update the EFI executable in `/boot/Efi/Secure/combined-boot-signed.efi`
+* `secure-boot update` will update the EFI executable in `/boot/Efi/Secure/secure-boot-linux.efi`
 * `secure-boot install` will run update and add an entry to the EFI boot list for the newly created image
 
-`secure-boot.hook` is installed as a pacman hook that runs `secure-boot update` when `linux` package is updated. You can
+`secure-boot.hook` can be installed as a pacman hook (`/etc/pacman.d/hooks/`) that runs `secure-boot update` when the `linux`, `{intel,amd}-ucode` package or `initramfs` is updated. You can
 use that file as a template for other kernels too (this procedure should converge to systemds kernel-install).
 
 
