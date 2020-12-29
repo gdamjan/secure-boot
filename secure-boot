@@ -19,6 +19,7 @@ CMDLINE   := /etc/kernel/cmdline
 DESTFILE  := secure-boot-${KERNEL}.efi
 EFIBOOTMGR := efibootmgr
 EFIBOOTLBL := SecureBoot ${KERNEL}
+RSAKEYSIZE := 4096
 
 -include /etc/secure-boot/config.mk
 
@@ -92,7 +93,7 @@ $(KEYSDIR)/%.crt: $(KEYSDIR)/%.key;
 $(KEYSDIR)/%.key: COMMONNAME = $(SIGNER) $(basename $(notdir $@))
 $(KEYSDIR)/%.key:
 	@mkdir -p $(KEYSDIR)
-	openssl req -new -x509 -newkey rsa:2048 -subj "/CN=$(COMMONNAME)/" \
+	openssl req -new -x509 -newkey rsa:${RSAKEYSIZE} -subj "/CN=$(COMMONNAME)/" \
 	    -keyout $@ -out $(@:.key=.crt) -days 3650 -nodes -sha256
 
 $(KEYSDIR)/uuid:
