@@ -2,10 +2,10 @@ SECURE-BOOT 8 "December 2020" "secure-boot 1.5.0" "User Manual"
 ==================================================
 
 # NAME
-  secure-boot - UEFI SecureBoot on ArchLinux
+secure-boot - UEFI SecureBoot on ArchLinux
 
 # SYNOPSIS
-  secure-boot [OPTIONS] \<command\>
+secure-boot [**OPTIONS**] *\<command\>*
 
 # DESCRIPTION
 `secure-boot` is a userspace application to use UEFI secure boot on ArchLinux.
@@ -20,49 +20,49 @@ command line (see `EXAMPLES`).
 Secure boot must be enabled in the UEFI firmware.
 
 # OPTIONS
-ESP=\<path\>
-    Path to ESP directory, default: /boot
+**ESP**=*\<path\>*
+    Path to ESP directory, default: `/boot`
 
-EFIDIR=\<path\>
-    Path to EFI directory, default: /EFI/Secure
+**EFIDIR**=*\<path\>*
+    Path to EFI directory, default: `/EFI/Secure`
 
-EFIBOOTDEVICE=\<path\>
-    Path to EFI boot device to override efibootmgr defaults
+**EFIBOOTDEVICE**=*\<path\>*
+    Path to EFI boot device to override `efibootmgr -d` defaults
 
-SUFFIX=\<suffix\>
-    Deprecated, use KERNEL, default: linux
+**SUFFIX**=*\<suffix\>*
+    Deprecated, use KERNEL, default: "linux"
 
-SIGNER=\<name\>
-    Name of the signer, passed as part of `/CN` to OpenSSLs key generation, default: ArchSecureBoot
+**SIGNER**=*\<name\>*
+    Name of the signer, passed as part of **/CN** to OpenSSLs key generation, default: ArchSecureBoot
 
-KERNEL=\<suffix\>
-    Default: ${SUFFIX}
+**KERNEL**=*\<kernel\>*
+    Specify a kernel, e.g. linux, default: "${SUFFIX}"
 
-VMLINUZ=\<path\>
-    Path to linux kernel image, default: /boot/vmlinuz-${KERNEL}
+**VMLINUZ**=*\<path\>*
+    Path to linux kernel image, default: `/boot/vmlinuz-${KERNEL}`
 
-INITRAMFS=\<path\>
-    Path to initramfs default: /boot/initramfs-${KERNEL}.img
+**INITRAMFS**=*\<path\>*
+    Path to initramfs default: `/boot/initramfs-${KERNEL}.img`
 
-EFISTUB=\<path\>
-    Path to EFI stub, default: /usr/lib/systemd/boot/efi/linuxx64.efi.stub
+**EFISTUB**=*\<path\>*
+    Path to EFI stub, default: `/usr/lib/systemd/boot/efi/linuxx64.efi.stub`
 
-UCODE=\<path\>
-    Path to CPU microcode image, default: /boot/intel-ucode.img
+**UCODE**=*\<path\>*
+    Path to CPU microcode image, default: `/boot/intel-ucode.img`
 
-CMDLINE=\<path\>
-    Path to kernel command line, default: /etc/kernel/cmdline
+**CMDLINE**=*\<path\>*
+    Path to kernel command line, default: `/etc/kernel/cmdline`
 
-DESTFILE=\<name\>
-    Name of merged EFI boot image, default: secure-boot-${KERNEL}.efi
+**DESTFILE**=*\<name\>*
+    Name of merged EFI boot image, default: "secure-boot-${KERNEL}.efi"
 
-EFIBOOTMGR=\<executable\>
-    Efibootmgr executable, default: efibootmgr
+**EFIBOOTMGR**=*\<executable\>*
+    Efibootmgr executable, default: `efibootmgr`
 
-EFIBOOTLBL=\<label\>
-    Label of EFI boot entry, default: SecureBoot ${KERNEL}
+**EFIBOOTLBL**=*\<label\>*
+    Label of EFI boot entry, default: "SecureBoot ${KERNEL}"
 
-RSAKEYSIZE=\<number\>
+**RSAKEYSIZE**=*\<number\>*
     RSA key size, default: 4096
 
 # COMMANDS
@@ -71,7 +71,7 @@ Generates the keys into `/etc/secure-boot`. Make sure that no-one can access
 them!
 
 ###  enroll
-Experimental! Enrolls the generated keys into the UEFI firmware using
+**Experimental!** Enrolls the generated keys into the UEFI firmware using
 `efi-updatevar` from package `efitools`.
 
 ###  update
