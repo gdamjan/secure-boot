@@ -9,7 +9,7 @@ url="https://github.com/gdamjan/secure-boot"
 license=('GPL')
 groups=()
 depends=('efitools' 'sbsigntools' 'make' 'efibootmgr' 'util-linux' 'binutils' 'systemd')
-makedepends=()
+makedepends=('go-md2man')
 checkdepends=()
 optdepends=()
 provides=()
@@ -19,7 +19,8 @@ backup=()
 options=()
 install=
 changelog=
-source=("secure-boot" "secure-boot.hook" "fwupd.hook" "95-secure-boot.install" )
+source=("secure-boot" "secure-boot.hook" "fwupd.hook" "95-secure-boot.install"
+    "secure-boot-man.md")
 noextract=()
 
 package() {
@@ -29,6 +30,8 @@ package() {
     install -Dm644 secure-boot.hook "${pkgdir}"/usr/share/libalpm/hooks/99-secure-boot.hook
     install -Dm644 fwupd.hook "${pkgdir}"/usr/share/libalpm/hooks/fwupd.hook
     install -Dm644 95-secure-boot.install "${pkgdir}"/usr/lib/kernel/install.d/95-secure-boot.install
+    go-md2man --in secure-boot-man.md --out secure-boot.8
+    install -Dm644 secure-boot.8 "${pkgdir}"/usr/share/man/man8/secure-boot.8
 }
 
 sha256sums=('d1dcbc4fcc42bfe2e506d87ee383174c59b8f5d34786ee90169a7b3e1682cf72'
