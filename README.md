@@ -1,6 +1,7 @@
 # UEFI SecureBoot on ArchLinux
 
-
+> ⚠️ Note: this project will be deprecated soon, by the [`--uefi`](https://github.com/archlinux/mkinitcpio/pull/53) option in mkinitcpio and [sbctl](https://github.com/Foxboron/sbctl).
+ 
 ## Rationale
 
 I want full control at what boots the computer to avoid the so called [_evil maid attack_](https://www.schneier.com/blog/archives/2009/10/evil_maid_attac.html). That requires setting SecureBoot with only my own keys. SecureBoot protects the computer from tampering with the installed OS and boot files, while it's left powered off outside our view. It's not a substitute for disk encryption though, it's an addition to it.
