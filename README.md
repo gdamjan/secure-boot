@@ -70,12 +70,10 @@ Don't forget to upgrade the firmware before starting. Bugs are often fixed and n
 
 ## Testing in KVM
 
-You need an OVMF (the opensource UEFI firmware) binary. Since the one in Arch repos **doesn't** support SecureBoot, and the one in AUR doesn't compile (yet), I took a prebuilt one from a [Fedora repository](https://www.kraxel.org/repos/jenkins/edk2/), and unpacked it with bsdtar. Download the edk2.git-ovmf-x64*rpm file and get the `OVMF-pure-efi.fd` file from it (or alternatively OVMF_CODE-pure-efi.fd and OVMF_VARS-pure-efi.fd).
-
-To run QEMU/KVM with the OVMF firmware, run it as:
+To run QEMU/KVM with the OVMF firmware (path specific to ArchLinux), run it as:
 
 ```
-qemu-system-x86_64 -enable-kvm -bios OVMF-pure-efi.fd -hda vfat:/usr/share/efitools/efi/
+qemu-system-x86_64 -enable-kvm -bios /usr/share/edk2-ovmf/x64/OVMF_CODE.secboot.fd -hda vfat:/usr/share/efitools/efi/
 ```
 
 or just install some Linux from .iso. Don't forget, UEFI requires GPT.
